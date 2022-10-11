@@ -3,15 +3,24 @@ import useSWR from "swr";
 import Head from "next/head";
 import Image from "next/image";
 import { fetcher } from "/lib/fetcher";
+import Modal from "/components/Modal";
 import { HttpMethod } from "/types/http";
 
 import type { FormEvent } from "react";
+
+type UpdateTask = {
+  id: number;
+  completed?: boolean;
+  task?: string;
+};
 
 export default function Home() {
   const [task, setTask] = useState({ task: "" });
   const taskContentRef = useRef<HTMLInputElement | null>(null);
   const [inputTask, setInputTask] = useState("");
-  const [isEditables, setIsEditables] = useState<Array<boolean>>([]);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [editId, setEditId] = useState<number>(null);
+  const [editTask, setEditTask] = useState<string>("");
 
   const handleChange = ({ currentTarget: input }) => {
     if (input.value !== "") {
@@ -20,13 +29,6 @@ export default function Home() {
   };
 
   const { data: tasks, mutate } = useSWR("/api/task", fetcher);
-
-  useEffect(() => {
-    if (tasks) {
-      const initEditables = new Array<boolean>(tasks.length).fill(false);
-      setIsEditables(initEditables);
-    }
-  }, [tasks]);
 
   async function createTask(taskContent: string) {
     if (taskContent !== "") {
@@ -46,16 +48,13 @@ export default function Home() {
     }
   }
 
-  async function updateTask(object) {
+  async function updateTask(task: UpdateTask) {
     const res = await fetch("/api/task", {
       method: HttpMethod.PUT,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        id: object.id,
-        completed: object.completed,
-      }),
+      body: JSON.stringify({ ...task }),
     });
     if (res.ok) {
       const sleep = (msec) =>
@@ -152,19 +151,14 @@ export default function Home() {
                   className={
                     "px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100 rounded-tr rounded-br"
                   }
-                >
-                  edit/delete
-                </th>
+                />
               </tr>
             </thead>
             <tbody>
               {tasks &&
                 tasks.map((task, index) => (
-                  <tr>
-                    <td
-                      className={"border-t-2 border-gray-200 px-4 py-3"}
-                      key={task.id}
-                    >
+                  <tr key={task.id}>
+                    <td className={"border-t-2 border-gray-200 px-4 py-3"}>
                       <input
                         type="checkbox"
                         className={""}
@@ -177,44 +171,57 @@ export default function Home() {
                       />
                     </td>
                     <td className={"border-t-2 border-gray-200 px-4 py-3"}>
-                      {isEditables[index] === true ? (
-                        <></>
-                      ) : (
-                        <p className={task.completed}>{task.task}</p>
-                      )}
+                      <p>{task.task}</p>
                     </td>
                     <td className={"border-t-2 border-gray-200 px-4 py-3"}>
                       <div className="flex">
                         <div className={"flex-auto"}>
                           <button
                             onClick={() => {
-                              const hoge = isEditables;
-                              hoge[index] = true;
-                              setIsEditables(hoge);
-                              console.log(isEditables[index] == true);
+                              setEditId(task.id);
+                              setEditTask(task.task);
+                              setShowModal(true);
                             }}
-                            className={""}
+                            className={
+                              "text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                            }
                           >
-                            &#9998;
+                            Edit
                           </button>
                         </div>
                         <div className={"flex-auto"}>
                           <button
                             onClick={() => deleteTask(task.id)}
-                            className={""}
+                            className={
+                              "text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                            }
                           >
-                            &#10006;
+                            Delete
                           </button>
                         </div>
                       </div>
                     </td>
                   </tr>
                 ))}
-              {tasks && tasks.length === 0 && <h2 className={""}>No tasks</h2>}
+              {tasks && tasks.length === 0 && (
+                <tr>
+                  <td />
+                  <td>No tasks</td>
+                  <td />
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </main>
+      {showModal && (
+        <Modal
+          editId={editId}
+          editTask={editTask}
+          setShowModal={setShowModal}
+          updateTask={updateTask}
+        />
+      )}
     </div>
   );
 }

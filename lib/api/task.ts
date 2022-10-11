@@ -39,7 +39,8 @@ export async function createTask(req, res) {
 }
 
 export async function updateTask(req, res) {
-  const { id, completed } = req.body;
+  const { id, completed, task } = req.body;
+
   try {
     const response = await prisma.task.update({
       where: {
@@ -47,6 +48,7 @@ export async function updateTask(req, res) {
       },
       data: {
         completed: completed,
+        task: task
       },
     });
 

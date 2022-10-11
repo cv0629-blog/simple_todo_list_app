@@ -13,7 +13,6 @@ export default async function task(req, res) {
     case HttpMethod.DELETE:
       return deleteTask(req, res);
     case HttpMethod.PUT:
-      
       return updateTask(req, res);
     default:
       res.setHeader("Allow", [
