@@ -1,4 +1,4 @@
-import { getTask } from "/lib/api/task";
+import { getTask, createTask, deleteTask, updateTask } from "/lib/api/task";
 
 import { HttpMethod } from "/types/http";
 
@@ -8,6 +8,13 @@ export default async function task(req, res) {
   switch (req.method) {
     case HttpMethod.GET:
       return getTask(req, res);
+    case HttpMethod.POST:
+      return createTask(req, res);
+    case HttpMethod.DELETE:
+      return deleteTask(req, res);
+    case HttpMethod.PUT:
+      
+      return updateTask(req, res);
     default:
       res.setHeader("Allow", [
         HttpMethod.GET,
