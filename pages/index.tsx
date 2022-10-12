@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import useSWR from "swr";
 import Head from "next/head";
 import Image from "next/image";
@@ -21,6 +23,17 @@ export default function Home() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [editId, setEditId] = useState<number>(null);
   const [editTask, setEditTask] = useState<string>("");
+
+  const { data: session } = useSession();
+
+  const router = useRouter();
+  useEffect(() => {
+    if (!session) {
+      router.push(`/login`);
+    }
+  }, [session, router]);
+
+  const sessionId = session?.user?.id;
 
   const handleChange = ({ currentTarget: input }) => {
     if (input.value !== "") {
@@ -95,6 +108,12 @@ export default function Home() {
           >
             Sample TODO App
           </h1>
+          <button
+            className="text-gray-500 hover:text-gray-700 transition-all ease-in-out duration-150"
+            onClick={() => signOut()}
+          >
+            Logout
+          </button>
         </div>
         <div className={"lg:w-2/3 w-full mx-auto overflow-auto"}>
           <div className={"w-full mb-20"}>

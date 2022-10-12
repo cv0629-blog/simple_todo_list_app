@@ -1,32 +1,42 @@
 import prisma from "/lib/prisma";
 
 import type { NextApiRequest, NextApiResponse } from "next";
+import type { Session } from "next-auth";
 import type { Task } from ".prisma/client";
 
-type AllTasks = {
-  tasks: Array<Task>;
-};
+export async function getTask(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+) {
+  const userId = session?.user?.id;
 
-export async function getTask(req, res) {
   try {
-    const sites = await prisma.task.findMany({
+    const tasks = await prisma.task.findMany({
       where: {
         completed: false,
+        userId: userId,
       },
     });
-    return res.status(200).json(sites);
+    return res.status(200).json(tasks);
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);
   }
 }
 
-export async function createTask(req, res) {
+export async function createTask(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+) {
   const { task } = req.body;
+  const userId = session?.user?.id;
   try {
     const response = await prisma.task.create({
       data: {
         task: task,
+        userId: userId,
       },
     });
     return res.status(201).json({
@@ -38,7 +48,7 @@ export async function createTask(req, res) {
   }
 }
 
-export async function updateTask(req, res) {
+export async function updateTask(req: NextApiRequest, res: NextApiResponse) {
   const { id, completed, task } = req.body;
 
   try {
@@ -48,7 +58,7 @@ export async function updateTask(req, res) {
       },
       data: {
         completed: completed,
-        task: task
+        task: task,
       },
     });
 
@@ -59,8 +69,9 @@ export async function updateTask(req, res) {
   }
 }
 
-export async function deleteTask(req, res) {
+export async function deleteTask(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.body;
+
   try {
     await prisma.task.delete({
       where: {
