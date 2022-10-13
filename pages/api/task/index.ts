@@ -6,7 +6,7 @@ import { HttpMethod } from "/types/http";
 
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function task(req, res) {
+export default async function task(req: NextApiRequest, res: NextApiResponse) {
   const session = await unstable_getServerSession(req, res, authOptions);
   if (!session) return res.status(401).end();
 
