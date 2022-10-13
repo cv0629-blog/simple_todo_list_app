@@ -1,5 +1,5 @@
 import { getTask, createTask, deleteTask, updateTask } from "/lib/api/task";
-import { unstable_getServerSession } from "next-auth/next";
+import { unstable_getServerSession as getServerSession }  from "next-auth/next";
 import { authOptions } from "/pages/api/auth/[...nextauth]";
 
 import { HttpMethod } from "/types/http";
@@ -7,7 +7,7 @@ import { HttpMethod } from "/types/http";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function task(req: NextApiRequest, res: NextApiResponse) {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions);
   if (!session) return res.status(401).end();
 
   switch (req.method) {

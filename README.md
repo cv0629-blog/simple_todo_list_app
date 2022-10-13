@@ -15,7 +15,12 @@ First, Setup Github Apps for Auth
 8. Copy the client secret you generated and paste it under the GITHUB_SECRET value in your .env file
 9. Copy the Client ID and paste it under the GITHUB_ID value in your .env file
 
-Second, in local using SQLite, run the migrate command
+Second, install other library
+```bash
+npm install
+```
+
+in local using SQLite, run the migrate command
 ```bash
 npx prisma migrate dev
 ```
@@ -24,8 +29,6 @@ run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
